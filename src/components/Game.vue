@@ -7,18 +7,20 @@
 <script>
 import Boundary from "@/classes/Boundary";
 import Player from "@/classes/Player";
+import Fill from "@/classes/Fill";
 
 const map = [
     ['1', '-', '-', '-', '-', '-', '-', '2'],
     ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
     ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-    ['6', ']', '', ' ', ' ', ' ',  ' ', '|'],
+    ['6', ']', ' ', ' ', ' ', ' ', ' ', '|'],
     ['|', ' ', ' ', ' ', ' ', ' ', '[', '8'],
     ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
     ['|', ' ', ' ', ' ', ' ', '^', ' ', '|'],
     ['4', '-', '-', '-', '-', '5', '-', '3'],
 ]
 const boundaries = [];
+const fillers = [];
 
 function createImage(src) {
     const image = new Image();
@@ -80,6 +82,14 @@ map.forEach((row, i) => {
                 break;
             case '8':
                 image = createImage('/images/pipeConnectorLeft.png');
+                break;
+            case ' ':
+                fillers.push(new Fill({
+                    position: {
+                        x: Boundary.size * j,
+                        y: Boundary.size * i,
+                    },
+                }));
                 break;
         }
 
@@ -216,6 +226,20 @@ export default {
                 boundaries.forEach((boundary) => {
                     boundary.draw(ctx);
                 })
+
+                fillers.forEach((filler, i) => {
+                    filler.draw(ctx);
+                    if (
+                        Math.hypot(
+                            (filler.position.x + Fill.size / 2 ) - player.position.x,
+                            (filler.position.y + Fill.size / 2) - player.position.y
+                        ) < player.radius
+                    ) {
+                        setTimeout(() => {
+                            fillers.splice(i, 1);
+                        }, 0);
+                    }
+                });
 
                 player.update(ctx);
             }
